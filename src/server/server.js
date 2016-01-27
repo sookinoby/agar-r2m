@@ -38,8 +38,10 @@ var initMassLog = util.log(c.defaultPlayerMass, c.slowBase);
 app.use(express.static(__dirname + '/../client'));
 
 function addFood(toAdd) {
-    var radius = util.massToRadius(c.foodMass);
+    //var radius = util.massToRadius(c.foodMass);
     while (toAdd--) {
+        var mass = util.randomInRange(c.foods.defaultMass.from, c.foods.defaultMass.to, true);
+        var radius = util.massToRadius(mass);
         var position = c.foodUniformDisposition ? util.uniformPosition(food, radius) : util.randomPosition(radius);
         food.push({
             // Make IDs unique.
@@ -47,8 +49,11 @@ function addFood(toAdd) {
             x: position.x,
             y: position.y,
             radius: radius,
-            mass: Math.random() + 2,
-            hue: Math.round(Math.random() * 360)
+            mass: mass,
+            fill: c.foods.fill,
+            stroke: c.foods.stroke,
+            strokeWidth: c.foods.strokeWidth
+
         });
     }
 }

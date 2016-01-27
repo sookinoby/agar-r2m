@@ -664,16 +664,42 @@ function drawCircle(centerX, centerY, radius, sides) {
 }
 
 function drawFood(food) {
-    graph.strokeStyle = 'hsl(' + food.hue + ', 100%, 45%)';
-    graph.fillStyle = 'hsl(' + food.hue + ', 100%, 50%)';
-    graph.lineWidth = foodConfig.border;
+    //graph.strokeStyle = 'hsl(' + food.hue + ', 100%, 45%)';
+    //graph.fillStyle = 'hsl(' + food.hue + ', 100%, 50%)';
+    //graph.lineWidth = foodConfig.border;
+    var start = {
+        x: player.x - (screenWidth / 2),
+        y: player.y - (screenHeight / 2)
+    };
+
+    var circle = {
+        x: food.x - start.x,
+        y: food.y - start.y
+    };
+
+    var fontSize = Math.max(food.radius / 3, 12);
+
+    graph.strokeStyle = food.stroke;
+
+    graph.fillStyle = food.fill;
+    graph.lineWidth = food.strokeWidth;
     drawCircle(food.x - player.x + screenWidth / 2, food.y - player.y + screenHeight / 2, food.radius, foodSides);
+    graph.miterLimit = 1;
+    graph.lineJoin = 'round';
+    graph.textAlign = 'center';
+    graph.textBaseline = 'middle';
+    graph.font = 'bold ' + fontSize + 'px sans-serif';
+    graph.strokeText(food.mass % 20, circle.x, circle.y);
+    graph.fillText(food.mass % 20, circle.x, circle.y);
+
 }
 
 function drawVirus(virus) {
+
     graph.strokeStyle = virus.stroke;
     graph.fillStyle = virus.fill;
     graph.lineWidth = virus.strokeWidth;
+
     drawCircle(virus.x - player.x + screenWidth / 2, virus.y - player.y + screenHeight / 2, virus.radius, virusSides);
 }
 
@@ -689,6 +715,7 @@ function drawPlayers(order) {
         x: player.x - (screenWidth / 2),
         y: player.y - (screenHeight / 2)
     };
+
 
     for(var z=0; z<order.length; z++)
     {
@@ -714,6 +741,7 @@ function drawPlayers(order) {
             x: cellCurrent.x - start.x,
             y: cellCurrent.y - start.y
         };
+
 
         for (var i = 0; i < points; i++) {
 
@@ -777,6 +805,8 @@ function drawPlayers(order) {
             graph.strokeText(Math.round(cellCurrent.mass), circle.x, circle.y+fontSize);
             graph.fillText(Math.round(cellCurrent.mass), circle.x, circle.y+fontSize);
         }
+
+
     }
 }
 
