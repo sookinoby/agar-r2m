@@ -17,7 +17,7 @@ var util = require('./lib/util');
 var quadtree= require('../../quadtree');
 
 var args = {x : 0, y : 0, h : c.gameHeight, w : c.gameWidth, maxChildren : 1, maxDepth : 5};
-console.log(args);
+//console.log(args);
 
 var tree = quadtree.QUAD.init(args);
 
@@ -32,6 +32,8 @@ var leaderboardChanged = false;
 
 var V = SAT.Vector;
 var C = SAT.Circle;
+
+var loop_count = 0;
 
 var initMassLog = util.log(c.defaultPlayerMass, c.slowBase);
 
@@ -399,6 +401,7 @@ io.on('connection', function (socket) {
     });
 
     socket.on('1', function() {
+        //console.log("eating");
         // Fire food.
         for(var i=0; i<currentPlayer.cells.length; i++)
         {
@@ -413,7 +416,7 @@ io.on('connection', function (socket) {
                 massFood.push({
                     id: currentPlayer.id,
                     num: i,
-                    masa: masa,
+                    mass: masa,
                     hue: currentPlayer.hue,
                     target: {
                         x: currentPlayer.x - currentPlayer.cells[i].x + currentPlayer.target.x,
@@ -428,8 +431,11 @@ io.on('connection', function (socket) {
         }
     });
     socket.on('2', function(virusCell) {
+        //console.log("enter split");
         function splitCell(cell) {
-            if(cell.mass >= c.defaultPlayerMass*2) {
+            loop_count = loop_count + 1;
+            //console.log(loop_count+ "split cell");
+            if(cell.mass >= c.defaultPlayerMass) {
                 cell.mass = cell.mass/2;
                 cell.radius = util.massToRadius(cell.mass);
                 currentPlayer.cells.push({
@@ -439,17 +445,19 @@ io.on('connection', function (socket) {
                     radius: cell.radius,
                     speed: 25
                 });
+                socket.broadcast.emit('serverSendPlayerChat', {sender: "Admin", message: "Wrong Answer".substring(0,35)});
             }
         }
-
-        if(currentPlayer.cells.length < c.limitSplit && currentPlayer.massTotal >= c.defaultPlayerMass*2) {
+        //console.log(currentPlayer.cells.length +"   "+currentPlayer.massTotal);
+        if(currentPlayer.cells.length < c.limitSplit && currentPlayer.massTotal >= c.defaultPlayerMass) {
+            //console.log("shold be splitting");
             //Split single cell from virus
             if(virusCell) {
               splitCell(currentPlayer.cells[virusCell]);
             }
             else {
               //Split all cells
-              if(currentPlayer.cells.length < c.limitSplit && currentPlayer.massTotal >= c.defaultPlayerMass*2) {
+              if(currentPlayer.cells.length < c.limitSplit && currentPlayer.massTotal >= c.defaultPlayerMass) {
                   var numMax = currentPlayer.cells.length;
                   for(var d=0; d<numMax; d++) {
                       splitCell(currentPlayer.cells[d]);
@@ -458,6 +466,7 @@ io.on('connection', function (socket) {
             }
             currentPlayer.lastSplit = new Date().getTime();
         }
+
     });
 });
 
@@ -533,6 +542,7 @@ function tickPlayer(currentPlayer) {
         }
     }
 
+
     for(var z=0; z<currentPlayer.cells.length; z++) {
         var currentCell = currentPlayer.cells[z];
         var playerCircle = new C(
@@ -543,7 +553,19 @@ function tickPlayer(currentPlayer) {
         var foodEaten = food.map(funcFood)
             .reduce( function(a, b, c) { return b ? a.concat(c) : a; }, []);
 
-        foodEaten.forEach(deleteFood);
+        console.log(foodEaten);
+        if(foodEaten.length){
+            if ((Math.floor((Math.random() * 10) + 1)) % 2 === 0){
+                sockets[currentPlayer.id].emit('virusSplit', z);
+                console.log("not deletign food");
+            }else{
+                console.log("deleting food");
+                foodEaten.forEach(deleteFood);
+            }
+
+        }
+
+
 
         var massEaten = massFood.map(eatMass)
             .reduce(function(a, b, c) {return b ? a.concat(c) : a; }, []);
@@ -551,8 +573,20 @@ function tickPlayer(currentPlayer) {
         var virusCollision = virus.map(funcFood)
            .reduce( function(a, b, c) { return b ? a.concat(c) : a; }, []);
 
+        //sockets[currentPlayer.id].emit('virusSplit', z);
+        //if(virusCollision > 0){
+        //    console.log(currentCell.mass +"    "+ virus[virusCollision].mass);
+        //}
+
+
         if(virusCollision > 0 && currentCell.mass > virus[virusCollision].mass) {
-          sockets[currentPlayer.id].emit('virusSplit', z);
+            //console.log("enter collision");
+            if(true){
+                sockets[currentPlayer.id].emit('virusSplit', z);
+            }else{
+                console.log("not splitting");
+            }
+
         }
 
         var masaGanada = 0;
