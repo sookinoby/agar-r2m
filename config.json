@@ -15,7 +15,7 @@
         "splitMass": 180
     },
 	"virus": {
-        "fill": "#33ff33",
+        "fill": "#FFFFFF",
         "stroke": "#19D119",
             "strokeWidth": 20,
             "defaultMass": {

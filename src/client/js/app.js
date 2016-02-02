@@ -701,6 +701,23 @@ function drawVirus(virus) {
     graph.lineWidth = virus.strokeWidth;
 
     drawCircle(virus.x - player.x + screenWidth / 2, virus.y - player.y + screenHeight / 2, virus.radius, virusSides);
+
+    var start = {
+        x: player.x - (screenWidth / 2),
+        y: player.y - (screenHeight / 2)
+    };
+
+    var circle = {
+        x: virus.x - start.x,
+        y: virus.y - start.y
+    };
+
+    var fontSize = Math.max(virus.radius / 3, 12);
+
+    graph.font = 'bold ' + fontSize + 'px sans-serif';
+    graph.strokeText(virus.answer, circle.x, circle.y);
+    graph.fillText(virus.answer, circle.x, circle.y);
+
 }
 
 function drawFireFood(mass) {
@@ -779,8 +796,9 @@ function drawPlayers(order) {
         graph.fill();
         graph.stroke();
         var nameCell = "";
+        console.log(userCurrent.name);
         if(typeof(userCurrent.id) == "undefined")
-            nameCell = player.name;
+            nameCell = userCurrent.name;
         else
             nameCell = userCurrent.name;
 

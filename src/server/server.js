@@ -35,6 +35,11 @@ var C = SAT.Circle;
 
 var loop_count = 0;
 
+// To avoid multi splitting of multi  within a second
+var last_collided_viruses = [];
+var last_collision_time = Date.now();
+
+
 var initMassLog = util.log(c.defaultPlayerMass, c.slowBase);
 
 app.use(express.static(__dirname + '/../client'));
@@ -60,11 +65,23 @@ function addFood(toAdd) {
     }
 }
 
+function getquestion(){
+    return Math.floor((Math.random() * 10) + 1);
+
+}
+
+function getanswer(question){
+    return Math.floor((Math.random() * 10) + 1);
+}
+
+
 function addVirus(toAdd) {
     while (toAdd--) {
         var mass = util.randomInRange(c.virus.defaultMass.from, c.virus.defaultMass.to, true);
         var radius = util.massToRadius(mass);
         var position = c.virusUniformDisposition ? util.uniformPosition(virus, radius) : util.randomPosition(radius);
+        var question = getquestion();
+        var answer = getanswer(question);
         virus.push({
             id: ((new Date()).getTime() + '' + virus.length) >>> 0,
             x: position.x,
@@ -73,7 +90,9 @@ function addVirus(toAdd) {
             mass: mass,
             fill: c.virus.fill,
             stroke: c.virus.stroke,
-            strokeWidth: c.virus.strokeWidth
+            strokeWidth: c.virus.strokeWidth,
+            question: question,
+            answer: answer
         });
     }
 }
@@ -83,6 +102,8 @@ function removeFood(toRem) {
         food.pop();
     }
 }
+
+
 
 function movePlayer(player) {
     var x =0,y =0;
@@ -295,6 +316,8 @@ io.on('connection', function (socket) {
             player.hue = Math.round(Math.random() * 360);
             currentPlayer = player;
             currentPlayer.lastHeartbeat = new Date().getTime();
+            currentPlayer.question = getquestion();
+            currentPlayer.name = currentPlayer.question;
             users.push(currentPlayer);
 
             io.emit('playerJoin', { name: currentPlayer.name });
@@ -470,6 +493,7 @@ io.on('connection', function (socket) {
     });
 });
 
+
 function tickPlayer(currentPlayer) {
     if(currentPlayer.lastHeartbeat < new Date().getTime() - c.maxHeartbeatInterval) {
         sockets[currentPlayer.id].emit('kick', 'Last heartbeat received over ' + c.maxHeartbeatInterval + ' ago.');
@@ -487,7 +511,13 @@ function tickPlayer(currentPlayer) {
         food.splice(f, 1);
     }
 
+    function deleteVirus(v){
+        virus[v] = {};
+        virus.splice(v, 1);
+    }
+
     function eatMass(m) {
+        console.log(m);
         if(SAT.pointInCircle(new V(m.x, m.y), playerCircle)){
             if(m.id == currentPlayer.id && m.speed > 0 && z == m.num)
                 return false;
@@ -553,22 +583,22 @@ function tickPlayer(currentPlayer) {
         var foodEaten = food.map(funcFood)
             .reduce( function(a, b, c) { return b ? a.concat(c) : a; }, []);
 
-        console.log(foodEaten);
-        if(foodEaten.length){
-            if ((Math.floor((Math.random() * 10) + 1)) % 2 === 0){
-                sockets[currentPlayer.id].emit('virusSplit', z);
-                console.log("not deletign food");
-            }else{
-                console.log("deleting food");
-                foodEaten.forEach(deleteFood);
-            }
+        //if(foodEaten.length){
+        //    if ((Math.floor((Math.random() * 10) + 1)) % 2 === 0){
+        //        sockets[currentPlayer.id].emit('virusSplit', z);
+        //        console.log("not deletign food");
+        //    }else{
+        //        console.log("deleting food");
+        //        foodEaten.forEach(deleteFood);
+        //    }
+        //
+        //}
+        foodEaten.forEach(deleteFood);
 
-        }
 
-
-
-        var massEaten = massFood.map(eatMass)
-            .reduce(function(a, b, c) {return b ? a.concat(c) : a; }, []);
+        //massFood = [];
+        //var massEaten = massFood.map(eatMass)
+        //    .reduce(function(a, b, c) {return b ? a.concat(c) : a; }, []);
 
         var virusCollision = virus.map(funcFood)
            .reduce( function(a, b, c) { return b ? a.concat(c) : a; }, []);
@@ -578,36 +608,73 @@ function tickPlayer(currentPlayer) {
         //    console.log(currentCell.mass +"    "+ virus[virusCollision].mass);
         //}
 
-
-        if(virusCollision > 0 && currentCell.mass > virus[virusCollision].mass) {
-            //console.log("enter collision");
-            if(true){
-                sockets[currentPlayer.id].emit('virusSplit', z);
-            }else{
-                console.log("not splitting");
-            }
-
-        }
-
         var masaGanada = 0;
-        for(var m=0; m<massEaten.length; m++) {
-            masaGanada += massFood[massEaten[m]].masa;
-            massFood[massEaten[m]] = {};
-            massFood.splice(massEaten[m],1);
-            for(var n=0; n<massEaten.length; n++) {
-                if(massEaten[m] < massEaten[n]) {
-                    massEaten[n]--;
+        if(virusCollision > 0 ) {
+
+            var same_collision = false;
+            var collision_time = Date.now();
+            var collision_diff = collision_time - last_collision_time;
+            for (var i =0; i< last_collided_viruses.length; i++){
+                if( virusCollision === last_collided_viruses[i] ){
+                    same_collision = true;
                 }
             }
+
+            if(!same_collision && collision_diff > 2000){
+                console.log("Entered Zone!" + collision_diff +same_collision);
+                console.log(virus[virusCollision].answer);
+                console.log(currentPlayer.question);
+                if(virus[virusCollision].answer === currentPlayer.question){
+                    if(currentCell.mass > virus[virusCollision].mass){
+                        console.log("not splitting");
+                        masaGanada += (virusCollision.length * c.foodMass);
+                        currentCell.mass += masaGanada;
+                        currentPlayer.massTotal += masaGanada;
+                        currentCell.radius = util.massToRadius(currentCell.mass);
+                        playerCircle.r = currentCell.radius;
+                        virusCollision.forEach(deleteVirus);
+                        currentPlayer.question = getquestion();
+                        currentPlayer.name = currentPlayer.question;
+                    }
+
+                }else{
+                    console.log("splitting");
+                    sockets[currentPlayer.id].emit('virusSplit', z);
+                    currentPlayer.question = getquestion();
+                    currentPlayer.name = currentPlayer.question;
+
+                }
+                last_collided_viruses = [];
+                last_collided_viruses.push(virusCollision);
+                last_collision_time = Date.now();
+            }
+
         }
 
-        if(typeof(currentCell.speed) == "undefined")
-            currentCell.speed = 6.25;
+
         masaGanada += (foodEaten.length * c.foodMass);
         currentCell.mass += masaGanada;
         currentPlayer.massTotal += masaGanada;
         currentCell.radius = util.massToRadius(currentCell.mass);
         playerCircle.r = currentCell.radius;
+
+        //for(var m=0; m<massEaten.length; m++) {
+        //    console.log("tests");
+        //    masaGanada += massFood[massEaten[m]].masa;
+        //    massFood[massEaten[m]] = {};
+        //    massFood.splice(massEaten[m],1);
+        //    for(var n=0; n<massEaten.length; n++) {
+        //        if(massEaten[m] < massEaten[n]) {
+        //            massEaten[n]--;
+        //        }
+        //    }
+        //}
+
+        if(typeof(currentCell.speed) == "undefined") {
+            currentCell.speed = 6.25;
+        }
+
+
 
         tree.clear();
         tree.insert(users);
@@ -734,6 +801,7 @@ function sendUpdates() {
                                 cells: f.cells,
                                 massTotal: Math.round(f.massTotal),
                                 hue: f.hue,
+                                name: f.name,
                             };
                         }
                     }
