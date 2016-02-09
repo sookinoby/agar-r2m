@@ -73,7 +73,7 @@ function getquestion(){
     var rand = Math.floor((Math.random() * 10) + 1);
     rand = rand % 10;
     var current_quesiton = quesitons.GameData[1].questions[rand];
-    console.log(current_quesiton.q.join(""));
+    //console.log(current_quesiton.q.join(""));
     return current_quesiton;
 
 }
@@ -108,7 +108,7 @@ function addAnswerVirus(toAdd, current_question) {
         var mass = util.randomInRange(c.virus.defaultMass.from, c.virus.defaultMass.to, true);
         var radius = util.massToRadius(mass);
         var position = c.virusUniformDisposition ? util.uniformPosition(virus, radius) : util.randomPosition(radius);
-        console.log(current_question);
+        //console.log(current_question);
         var question = current_question.q.join("");
         var answer = current_question.a.join("");
         virus.push({
@@ -270,7 +270,6 @@ function balanceMass() {
     }
 
     var virusToAdd = c.maxVirus - virus.length;
-    console.log("Virus to add " + virusToAdd);
 
     if (virusToAdd > 0) {
         addVirus(virusToAdd);
@@ -551,7 +550,7 @@ function tickPlayer(currentPlayer) {
     }
 
     function eatMass(m) {
-        console.log(m);
+        //console.log(m);
         if(SAT.pointInCircle(new V(m.x, m.y), playerCircle)){
             if(m.id == currentPlayer.id && m.speed > 0 && z == m.num)
                 return false;
@@ -661,7 +660,7 @@ function tickPlayer(currentPlayer) {
                 //console.log(currentPlayer.question);
                 if(virus[virusCollision].answer === currentPlayer.answer){
                     //if(currentCell.mass > virus[virusCollision].mass){
-                    console.log("not splitting");
+                    //console.log("not splitting");
                     masaGanada += (virusCollision.length * c.answerMass);
                     currentCell.mass += masaGanada;
                     currentPlayer.massTotal += masaGanada;
@@ -677,7 +676,7 @@ function tickPlayer(currentPlayer) {
                     //}
 
                 }else{
-                    console.log("splitting");
+                    //console.log("splitting");
                     sockets[currentPlayer.id].emit('virusSplit', z);
                     next_question = getquestion();
                     var random_virus = util.randomInRange(1, c.maxVirus);

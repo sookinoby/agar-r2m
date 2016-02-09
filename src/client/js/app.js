@@ -664,7 +664,6 @@ function drawCircle(centerX, centerY, radius, sides) {
 }
 
 function drawFood(food) {
-    console.log(food);
     graph.strokeStyle = 'hsl(' + food.hue + ', 100%, 45%)';
     graph.fillStyle = 'hsl(' + food.hue + ', 100%, 50%)';
     graph.lineWidth = foodConfig.border;
@@ -794,7 +793,6 @@ function drawPlayers(order) {
         graph.fill();
         graph.stroke();
         var nameCell = "";
-        console.log(userCurrent.name);
         if(typeof(userCurrent.id) == "undefined")
             nameCell = userCurrent.name;
         else
