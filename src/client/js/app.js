@@ -19,7 +19,7 @@ var animLoopHandle;
 var spin = -Math.PI;
 var enemySpin = -Math.PI;
 var mobile = false;
-var foodSides = 10;
+var foodSides = 20;
 var virusSides = 20;
 
 var debug = function(args) {
@@ -664,33 +664,12 @@ function drawCircle(centerX, centerY, radius, sides) {
 }
 
 function drawFood(food) {
-    //graph.strokeStyle = 'hsl(' + food.hue + ', 100%, 45%)';
-    //graph.fillStyle = 'hsl(' + food.hue + ', 100%, 50%)';
-    //graph.lineWidth = foodConfig.border;
-    var start = {
-        x: player.x - (screenWidth / 2),
-        y: player.y - (screenHeight / 2)
-    };
+    console.log(food);
+    graph.strokeStyle = 'hsl(' + food.hue + ', 100%, 45%)';
+    graph.fillStyle = 'hsl(' + food.hue + ', 100%, 50%)';
+    graph.lineWidth = foodConfig.border;
 
-    var circle = {
-        x: food.x - start.x,
-        y: food.y - start.y
-    };
-
-    var fontSize = Math.max(food.radius / 3, 12);
-
-    graph.strokeStyle = food.stroke;
-
-    graph.fillStyle = food.fill;
-    graph.lineWidth = food.strokeWidth;
     drawCircle(food.x - player.x + screenWidth / 2, food.y - player.y + screenHeight / 2, food.radius, foodSides);
-    graph.miterLimit = 1;
-    graph.lineJoin = 'round';
-    graph.textAlign = 'center';
-    graph.textBaseline = 'middle';
-    graph.font = 'bold ' + fontSize + 'px sans-serif';
-    graph.strokeText(food.mass % 20, circle.x, circle.y);
-    graph.fillText(food.mass % 20, circle.x, circle.y);
 
 }
 
@@ -699,20 +678,39 @@ function drawVirus(virus) {
     graph.strokeStyle = virus.stroke;
     graph.fillStyle = virus.fill;
     graph.lineWidth = virus.strokeWidth;
-
+    //drawCircle(virus.x - player.x + screenWidth / 2, virus.y - player.y + screenHeight / 2, virus.radius, virusSides);
+    //
+    //graph.strokeStyle = virus.stroke;
+    //graph.fillStyle = virus.fill;
+    //graph.lineWidth = virus.strokeWidth;
+    //
     drawCircle(virus.x - player.x + screenWidth / 2, virus.y - player.y + screenHeight / 2, virus.radius, virusSides);
-
+    //
     var start = {
         x: player.x - (screenWidth / 2),
         y: player.y - (screenHeight / 2)
     };
+
 
     var circle = {
         x: virus.x - start.x,
         y: virus.y - start.y
     };
 
-    var fontSize = Math.max(virus.radius / 3, 12);
+    var fontSize = Math.max(virus.radius / 3, 20);
+
+    graph.lineJoin = 'round';
+    graph.lineCap = 'round';
+    graph.fill();
+    graph.stroke();
+
+    graph.lineWidth = playerConfig.textBorderSize;
+    graph.fillStyle = playerConfig.textColor;
+    graph.strokeStyle = playerConfig.textBorder;
+    graph.miterLimit = 1;
+    graph.lineJoin = 'round';
+    graph.textAlign = 'center';
+    graph.textBaseline = 'middle';
 
     graph.font = 'bold ' + fontSize + 'px sans-serif';
     graph.strokeText(virus.answer, circle.x, circle.y);
