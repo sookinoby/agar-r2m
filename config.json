@@ -35,7 +35,7 @@
     "slowBase": 4.5,
     "logChat": 0,
     "networkUpdateFactor": 60,
-    "maxHeartbeatInterval": 5000,git
+    "maxHeartbeatInterval": 5000,
     "foodUniformDisposition": true,
     "virusUniformDisposition": true,
     "newPlayerInitialPosition": "farthest",
