@@ -30,7 +30,7 @@
     "gameHeight": 2000,
     "adminPass": "DEFAULT",
     "gameMass": 20000,
-    "maxFood": 20,
+    "maxFood": 100,
     "maxVirus": 35,
     "slowBase": 4.5,
     "logChat": 0,
