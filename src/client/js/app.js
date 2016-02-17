@@ -999,7 +999,8 @@ function gameLoop() {
 window.addEventListener('resize', resize);
 
 function resize() {
-    player.screenWidth = c.width = screenWidth = playerType == 'player' ? window.innerWidth : gameWidth;
-    player.screenHeight = c.height = screenHeight = playerType == 'player' ? window.innerHeight : gameHeight;
+    //increase the game display by 100/6 = 16.66 percentage
+    player.screenWidth = c.width = screenWidth = playerType == 'player' ? window.innerWidth + ((window.innerWidth) / 6) : gameWidth;
+    player.screenHeight = c.height = screenHeight = playerType == 'player' ? window.innerHeight + ((window.innerHeight)/ 6): gameHeight;
     socket.emit('windowResized', { screenWidth: screenWidth, screenHeight: screenHeight });
 }
