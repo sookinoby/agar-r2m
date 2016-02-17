@@ -11,8 +11,8 @@
         "stroke": "#19D119",
         "strokeWidth": 20,
         "defaultMass": {
-            "from": 20,
-            "to": 50
+            "from": 15,
+            "to": 20
         },
         "splitMass": 180
     },
@@ -21,20 +21,20 @@
         "stroke": "#19D119",
             "strokeWidth": 10,
             "defaultMass": {
-                "from": 20,
+                "from": 35,
                 "to": 50
             },
             "splitMass": 180
 	},
-    "gameWidth": 6000,
+    "gameWidth": 7000,
     "gameHeight": 3000,
     "adminPass": "DEFAULT",
     "gameMass": 20000,
     "maxFood": 100,
-    "maxVirus": 35,
+    "maxVirus": 40,
     "slowBase": 4.5,
     "logChat": 0,
-    "networkUpdateFactor": 60,
+    "networkUpdateFactor": 40,
     "maxHeartbeatInterval": 5000,
     "foodUniformDisposition": true,
     "virusUniformDisposition": true,

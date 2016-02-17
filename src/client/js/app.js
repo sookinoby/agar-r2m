@@ -794,9 +794,9 @@ function drawPlayers(order) {
         graph.stroke();
         var nameCell = "";
         if(typeof(userCurrent.id) == "undefined")
-            nameCell = userCurrent.name;
+            nameCell = userCurrent.question;
         else
-            nameCell = userCurrent.name;
+            nameCell = userCurrent.question;
 
         var fontSize = Math.max(cellCurrent.radius / 3, 12);
         graph.lineWidth = playerConfig.textBorderSize;

@@ -11,7 +11,7 @@ var SAT = require('sat');
 var c = require('../../config.json');
 
 //Import Questions.
-var quesitons = require('../../gamedata4.json');
+var quesitons = require('../../AgarioJson2.json');
 
 // Import utilities.
 var util = require('./lib/util');
@@ -70,9 +70,10 @@ function addFood(toAdd) {
 }
 
 function getquestion(){
-    var rand = Math.floor((Math.random() * 10) + 1);
-    rand = rand % 10;
-    var current_quesiton = quesitons.GameData[1].questions[rand];
+    var rand = Math.floor((Math.random() * 100) + 1);
+    var total_questions = quesitons.questionList.length;
+    rand = rand % total_questions;
+    var current_quesiton = quesitons.questionList[rand];
     //console.log(current_quesiton.q.join(""));
     return current_quesiton;
 
@@ -85,8 +86,8 @@ function addVirus(toAdd) {
         var radius = util.massToRadius(mass);
         var position = c.virusUniformDisposition ? util.uniformPosition(virus, radius) : util.randomPosition(radius);
         var current_question = getquestion();
-        var question = current_question.q.join("");
-        var answer = current_question.a.join("");
+        var question = current_question.Q.join("");
+        var answer = current_question.A.join("");
         virus.push({
             id: ((new Date()).getTime() + '' + virus.length) >>> 0,
             x: position.x,
@@ -109,8 +110,8 @@ function addAnswerVirus(toAdd, current_question) {
         var radius = util.massToRadius(mass);
         var position = c.virusUniformDisposition ? util.uniformPosition(virus, radius) : util.randomPosition(radius);
         //console.log(current_question);
-        var question = current_question.q.join("");
-        var answer = current_question.a.join("");
+        var question = current_question.Q.join("");
+        var answer = current_question.A.join("");
         virus.push({
             id: ((new Date()).getTime() + '' + virus.length) >>> 0,
             x: position.x,
@@ -348,9 +349,9 @@ io.on('connection', function (socket) {
             currentPlayer.lastHeartbeat = new Date().getTime();
             var current_question = getquestion();
             addAnswerVirus(1, current_question);
-            currentPlayer.question =  current_question.q.join("");
-            currentPlayer.answer = current_question.a.join("");
-            currentPlayer.name = currentPlayer.question;
+            currentPlayer.question =  current_question.Q.join("");
+            currentPlayer.answer = current_question.A.join("");
+            //currentPlayer.name = currentPlayer.question;
             users.push(currentPlayer);
 
             io.emit('playerJoin', { name: currentPlayer.name });
@@ -501,7 +502,7 @@ io.on('connection', function (socket) {
                     radius: cell.radius,
                     speed: 25
                 });
-                socket.broadcast.emit('serverSendPlayerChat', {sender: "Admin", message: "Wrong Answer".substring(0,35)});
+                //socket.broadcast.emit('serverSendPlayerChat', {sender: "Admin", message: "Wrong Answer".substring(0,35)});
             }
         }
         //console.log(currentPlayer.cells.length +"   "+currentPlayer.massTotal);
@@ -669,9 +670,9 @@ function tickPlayer(currentPlayer) {
                     virusCollision.forEach(deleteVirus);
                     next_question = getquestion();
                     addAnswerVirus(1, next_question);
-                    currentPlayer.question = next_question.q.join("");
-                    currentPlayer.answer = next_question.a.join("");
-                    currentPlayer.name = currentPlayer.question;
+                    currentPlayer.question = next_question.Q.join("");
+                    currentPlayer.answer = next_question.A.join("");
+                    //currentPlayer.name = currentPlayer.question;
 
                     //}
 
@@ -682,9 +683,9 @@ function tickPlayer(currentPlayer) {
                     var random_virus = util.randomInRange(1, c.maxVirus);
                     deleteVirus(random_virus);
                     addAnswerVirus(1, next_question);
-                    currentPlayer.question = next_question.q.join("");
-                    currentPlayer.answer = next_question.a.join("");
-                    currentPlayer.name = currentPlayer.question;
+                    currentPlayer.question = next_question.Q.join("");
+                    currentPlayer.answer = next_question.A.join("");
+                    //currentPlayer.name = currentPlayer.question;
 
                 }
                 last_collided_viruses = [];
@@ -834,7 +835,9 @@ function sendUpdates() {
                                 cells: f.cells,
                                 massTotal: Math.round(f.massTotal),
                                 hue: f.hue,
-                                name: f.name
+                                name: f.name,
+                                question: f.question,
+                                answer: f.answer
                             };
                         } else {
                             //console.log("Nombre: " + f.name + " Es Usuario");
@@ -845,6 +848,8 @@ function sendUpdates() {
                                 massTotal: Math.round(f.massTotal),
                                 hue: f.hue,
                                 name: f.name,
+                                question: f.question,
+                                answer: f.answer
                             };
                         }
                     }
