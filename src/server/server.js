@@ -530,7 +530,7 @@ io.on('connection', function (socket) {
 
 function tickPlayer(currentPlayer) {
     if(currentPlayer.lastHeartbeat < new Date().getTime() - c.maxHeartbeatInterval) {
-        sockets[currentPlayer.id].emit('kick', 'Last heartbeat received over ' + c.maxHeartbeatInterval + ' ago.');
+        sockets[currentPlayer.id].emit('kick', 'Inactive for  ' + c.maxHeartbeatInterval / 1000 + ' seconds.');
         sockets[currentPlayer.id].disconnect();
     }
 
@@ -588,7 +588,6 @@ function tickPlayer(currentPlayer) {
         if (collision.aUser.mass > collision.bUser.mass * 1.1  && collision.aUser.radius > Math.sqrt(Math.pow(collision.aUser.x - collision.bUser.x, 2) + Math.pow(collision.aUser.y - collision.bUser.y, 2))*1.75) {
             console.log('[DEBUG] Killing user: ' + collision.bUser.id);
             console.log('[DEBUG] Collision info:');
-            console.log(collision);
 
             var numUser = util.findIndex(users, collision.bUser.id);
             if (numUser > -1) {
@@ -668,7 +667,12 @@ function tickPlayer(currentPlayer) {
                     currentCell.radius = util.massToRadius(currentCell.mass);
                     playerCircle.r = currentCell.radius;
                     virusCollision.forEach(deleteVirus);
+
+                    //to balance the virus count always delete two viruss in random
+                    deleteVirus(util.randomInRange(1, c.maxVirus));
+
                     next_question = getquestion();
+                    addAnswerVirus(1, next_question);
                     addAnswerVirus(1, next_question);
                     currentPlayer.question = next_question.Q.join("");
                     currentPlayer.answer = next_question.A.join("");
@@ -680,8 +684,12 @@ function tickPlayer(currentPlayer) {
                     //console.log("splitting");
                     sockets[currentPlayer.id].emit('virusSplit', z);
                     next_question = getquestion();
-                    var random_virus = util.randomInRange(1, c.maxVirus);
-                    deleteVirus(random_virus);
+
+                    //to balance the virus count always delete two viruss in random
+                    deleteVirus(util.randomInRange(1, c.maxVirus));
+                    deleteVirus(util.randomInRange(1, c.maxVirus));
+
+                    addAnswerVirus(1, next_question);
                     addAnswerVirus(1, next_question);
                     currentPlayer.question = next_question.Q.join("");
                     currentPlayer.answer = next_question.A.join("");

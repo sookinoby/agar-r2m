@@ -52,7 +52,7 @@ function startGame(type) {
 
 // Checks if the nick chosen contains valid alphanumeric characters (and underscores).
 function validNick() {
-    var regex = /^\w*$/;
+    var regex = /^[\w\s]*$/;
     debug('Regex Test', regex.exec(playerNameInput.value));
     return regex.exec(playerNameInput.value) !== null;
 }
@@ -298,24 +298,30 @@ var chat = new ChatClient();
 // Chat command callback functions.
 function keyInput(event) {
 	var key = event.which || event.keyCode;
-	if (key === KEY_FIREFOOD && reenviar) {
-        socket.emit('1');
-        reenviar = false;
-    }
-    else if (key === KEY_SPLIT && reenviar) {
-       document.getElementById('split_cell').play();
+
+
+    if (key === KEY_SPLIT && reenviar) {
+        document.getElementById('split_cell').play();
         socket.emit('2');
         reenviar = false;
     }
+
+    //Uncomment to get the food emit on "W" clicks
+    //else if (key === KEY_FIREFOOD && reenviar) {
+    //    socket.emit('1');
+    //    reenviar = false;
+    //}
+
     else if (key === KEY_CHAT) {
         document.getElementById('chatInput').focus();
     }
 }
 
-    $( "#feed" ).click(function() {
-        socket.emit('1');
-        reenviar = false;
-});
+    //Uncomment to get the food emit on "W" clicks
+    //$( "#feed" ).click(function() {
+    //    socket.emit('1');
+    //    reenviar = false;
+    //});
 
     $( "#split" ).click(function() {
         socket.emit('2');
@@ -793,10 +799,15 @@ function drawPlayers(order) {
         graph.fill();
         graph.stroke();
         var nameCell = "";
-        if(typeof(userCurrent.id) == "undefined")
-            nameCell = userCurrent.question;
-        else
-            nameCell = userCurrent.question;
+        var question = "";
+        if(typeof(userCurrent.id) == "undefined"){
+            nameCell = userCurrent.name.split(' ').map(function (s) { return s.charAt(0); }).join('');
+            question = userCurrent.question;
+        }
+        else{
+            nameCell = userCurrent.name.split(' ').map(function (s) { return s.charAt(0); }).join('');
+            question = userCurrent.question;
+        }
 
         var fontSize = Math.max(cellCurrent.radius / 3, 12);
         graph.lineWidth = playerConfig.textBorderSize;
@@ -809,11 +820,15 @@ function drawPlayers(order) {
         graph.font = 'bold ' + fontSize + 'px sans-serif';
 
         if (toggleMassState === 0) {
-            graph.strokeText(nameCell, circle.x, circle.y);
-            graph.fillText(nameCell, circle.x, circle.y);
+            graph.strokeText(question, circle.x, circle.y);
+            graph.fillText(question, circle.x, circle.y);
+            graph.strokeText(nameCell, circle.x, circle.y - cellCurrent.radius + 15);
+            graph.fillText(nameCell, circle.x, circle.y - cellCurrent.radius + 15);
         } else {
-            graph.strokeText(nameCell, circle.x, circle.y);
-            graph.fillText(nameCell, circle.x, circle.y);
+            graph.strokeText(question, circle.x, circle.y);
+            graph.fillText(question, circle.x, circle.y);
+            graph.strokeText(nameCell, circle.x, circle.y - cellCurrent.radius + 15);
+            graph.fillText(nameCell, circle.x, circle.y - cellCurrent.radius + 15);
             graph.font = 'bold ' + Math.max(fontSize / 3 * 2, 10) + 'px sans-serif';
             if(nameCell.length === 0) fontSize = 0;
             graph.strokeText(Math.round(cellCurrent.mass), circle.x, circle.y+fontSize);

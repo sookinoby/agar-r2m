@@ -60,10 +60,11 @@ describe('util.js', function () {
       expect(n1).to.be.false;
     });
 
-    it('should disallow spaces in nicknames', function () {
-        var n1 = util.validNick('Walter White');
-        expect(n1).to.be.false;
-    });
+    //  Commenting to allow space in nick name
+    //it('should disallow spaces in nicknames', function () {
+    //    var n1 = util.validNick('Walter White');
+    //    expect(n1).to.be.false;
+    //});
   });
 
   describe('#log', function () {
